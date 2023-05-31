@@ -54,6 +54,11 @@ def calculateTotalEnergy(powerProduced):
         energy[hourly] = energy[hourly-1] + powerProduced[hourly]*3600*24/10E-6
     return energy
 
+# def dayAverage(sequence):
+#     newSequence = []
+#     for i in range(0,len(sequence),24):
+#         newSequence.append(sum(sequence[i:i+24]))
+#     return np.array(newSequence)
 
 
 class Parametrization(ViktorParametrization):
@@ -104,9 +109,12 @@ class Controller(ViktorController):
         fig.suptitle('performance Plot')
         for geoPoint in params.locationInput.pointsArray:
             weather = callWindHistory(geoPoint.point, params.dateInput.startDate, params.dateInput.endDate)
-            temperature = np.array(weather[1][::24])
-            pressure = np.array(weather[2][::24])
-            windSpeed = np.array(weather[3][::24])
+            temperature = np.array(weather[1])
+            temperature = np.array([sum(temperature[i:i+12])//12 for i in range(0,len(temperature),12)])
+            pressure = np.array(weather[2])
+            pressure = np.array([sum(pressure[i:i+12])//12 for i in range(0,len(pressure),12)])
+            windSpeed = np.array(weather[3])
+            windSpeed = np.array([sum(windSpeed[i:i+12])//12 for i in range(0,len(windSpeed),12)])
             sweptArea = np.pi * ((params.geometryInput.radius)/4.)**2
             airDensity = (pressure*100/(8.314*(273.15+temperature)))*28.97 #change to airpressure formula (DBSACGPT)
             y = 0.5 * airDensity * sweptArea * params.performanceInput.performanceCoeff * ((windSpeed/3.6)**3)/1000 * params.performanceInput.generatorEff
@@ -118,3 +126,13 @@ class Controller(ViktorController):
         fig.savefig(svg_data, format='svg')
         plt.close()
         return ImageResult(svg_data)
+    
+
+'''
+To do's
+    - add axis names, titles that stuff
+    - add a text at the beginning (make sure to ref the api)
+    - make windmill parametric
+    - add option for average over hour, 4 hours, 8 hours, 12 hours, day, 48 hours
+    - generate a simple report with a basic text, a picture of the geometry, and a performance plot
+'''
