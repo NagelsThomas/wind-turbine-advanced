@@ -7,6 +7,7 @@ from viktor.parametrization import (
     GeoPointField,
     DynamicArray,
     NumberField,
+    OptionField,
     DateField,
     TextField,
     Section,
@@ -82,6 +83,7 @@ class Parametrization(ViktorParametrization):
     dateInput = Section('Date range for performance')
     dateInput.startDate = DateField('Starting date')
     dateInput.endDate = DateField('Ending date')
+    dateInput.interval = OptionField('Select the interval', options=['1 hour', '4 hours', '8 hours', ])
 
 
 class Controller(ViktorController):
